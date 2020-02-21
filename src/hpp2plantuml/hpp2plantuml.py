@@ -223,7 +223,20 @@ class Class(Container):
             element is the class name and the second element is a CppClass
             object)
         """
-        super().__init__('class', header_class[0])
+
+        print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+        print("   header_class")
+        print(header_class)
+        print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+        print(header_class[0])
+        print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+
+
+        #super().__init__('class', header_class[0])
+        #super(Container, self).__init__('class', header_class[0])
+        #super(Container, self, 'class', header_class[0]).__init__()
+        Container.__init__(self, 'class', header_class[0])
+
         self._abstract = header_class[1]['abstract']
         self._template_type = None
         if 'template' in header_class[1]:
@@ -859,9 +872,14 @@ class Diagram(object):
         if build_from in ('string', 'file'):
             self.parse_objects(input, build_from)
         elif build_from in ('string_list', 'file_list'):
+            print("ddddddddddddddddddddddddddddddddddddddddddd")
+            print(input)
             build_from_single = re.sub('_list$', '', build_from)
+            print("build_from_single: " + build_from_single)
             for single_input in input:
+                print("  - " + single_input)
                 self.parse_objects(single_input, build_from_single)
+            print("ddddddddddddddddddddddddddddddddddddddddddd")
         if flag_build_lists:
             self.build_relationship_lists()
             self.sort_elements()
@@ -881,6 +899,9 @@ class Diagram(object):
         Wrapper around the :func:`_build_helper` function, with ``file_list``
         input, building the relationship lists and with object reset.
         """
+        print("ccccccccccccccccccccccccccccccccccccccccccc")
+        print file_list
+        print("ccccccccccccccccccccccccccccccccccccccccccc")
         self._build_helper(file_list, build_from='file_list',
                            flag_build_lists=True, flag_reset=True)
 
@@ -970,13 +991,32 @@ class Diagram(object):
             otherwise, it is assumed to be a filename
         """
         # Parse header file
+
+        print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+        print("  header_file: " + header_file)
+        print("  arg_type: " + arg_type)
+        print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
         parsed_header = CppHeaderParser.CppHeader(header_file,
                                                   argType=arg_type)
+        print("fffffffffffffffffffffffffffffffffffffffffff")
+        print("parsed_header: ")
+        #print(parsed_header)
+        print("fffffffffffffffffffffffffffffffffffffffffff")
         for container_type, container_iterator, \
             container_handler in CONTAINER_TYPE_MAP:
             objects = parsed_header.__getattribute__(container_type)
+            print("ggggggggggggggggggggggggggggggggggggggggggg")
+            print("  objects:")
+            print(objects)
+            print("ggggggggggggggggggggggggggggggggggggggggggg")
             for obj in container_iterator(objects):
+                print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+                print("  obj:")
+                print(obj)
+                print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
                 self._objects.append(container_handler(obj))
+                print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
 
     def _make_class_list(self):
         """Build list of classes
@@ -1237,6 +1277,7 @@ def expand_file_list(input_files):
     file_list = []
     for input_file in input_files:
         file_list += glob.glob(input_file)
+        print("Input File: " + input_file)
     return file_list
 
 def wrap_namespace(input_str, namespace):
@@ -1278,10 +1319,23 @@ def CreatePlantUMLFile(file_list, output_file=None, **diagram_kwargs):
     diagram_kwargs : dict
         Additional parameters passed to :class:`Diagram` constructor
     """
+
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print("file_list: ")
+    print(file_list)
+    print("output_file: " + output_file)
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
     if isinstance(file_list, str):
         file_list_c = [file_list, ]
     else:
         file_list_c = file_list
+
+    print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+    print("file_list_c: ")
+    print(file_list_c)
+    print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+
     diag = Diagram(**diagram_kwargs)
     diag.create_from_file_list(list(set(expand_file_list(file_list_c))))
     diag_render = diag.render()
@@ -1289,6 +1343,9 @@ def CreatePlantUMLFile(file_list, output_file=None, **diagram_kwargs):
     if output_file is None:
         print(diag_render)
     else:
+        print("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")
+        print(diag_render)
+        print("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")
         with open(output_file, 'wt') as fid:
             fid.write(diag_render)
 
